@@ -17,7 +17,7 @@ import java.util.Random;
  * or from a list of Action objects (from which the action references are copied into an internal list).
  * You may also add additional actions with the {@link #addAction(burlap.oomdp.singleagent.Action)} method
  * or remove or clear the actions.
- * <br/>
+ * <p>
  * Upon action selection, all applicable grounded actions for the state are generated and an action is selected
  * uniformly randomly from them. The policy is not defined if there are no applicable actions.
  */
@@ -119,7 +119,7 @@ public class RandomPolicy extends Policy{
 	@Override
 	public AbstractGroundedAction getAction(State s) {
 		List<GroundedAction> gas = Action.getAllApplicableGroundedActionsFromActionList(this.actions, s);
-		if(gas.size() == 0){
+		if(gas.isEmpty()){
 			throw new PolicyUndefinedException();
 		}
 		GroundedAction selection = gas.get(this.rand.nextInt(this.actions.size()));
@@ -129,7 +129,7 @@ public class RandomPolicy extends Policy{
 	@Override
 	public List<ActionProb> getActionDistributionForState(State s) {
 		List<GroundedAction> gas = Action.getAllApplicableGroundedActionsFromActionList(this.actions, s);
-		if(gas.size() == 0){
+		if(gas.isEmpty()){
 			throw new PolicyUndefinedException();
 		}
 		double p = 1./gas.size();

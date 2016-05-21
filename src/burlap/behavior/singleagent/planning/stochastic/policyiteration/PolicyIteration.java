@@ -1,6 +1,5 @@
 package burlap.behavior.singleagent.planning.stochastic.policyiteration;
 
-import burlap.behavior.policy.GreedyDeterministicQPolicy;
 import burlap.behavior.policy.GreedyQPolicy;
 import burlap.behavior.policy.Policy;
 import burlap.behavior.singleagent.planning.Planner;
@@ -65,6 +64,12 @@ public class PolicyIteration extends DynamicProgramming implements Planner {
 	 * The total number of value iterations used to evaluated policies performed
 	 */
 	protected int													totalValueIterations = 0;
+
+
+	/**
+	 * Boolean to indicate whether planning as been run at least once
+	 */
+	protected boolean												hasRunPlanning = false;
 	
 	
 	/**
@@ -86,7 +91,7 @@ public class PolicyIteration extends DynamicProgramming implements Planner {
 		this.maxIterations = maxEvaluationIterations;
 		this.maxPolicyIterations = maxPolicyIterations;
 		
-		this.evaluativePolicy = new GreedyDeterministicQPolicy(this.getCopyOfValueFunction());
+		this.evaluativePolicy = new GreedyQPolicy(this.getCopyOfValueFunction());
 	}
 	
 	
@@ -110,7 +115,7 @@ public class PolicyIteration extends DynamicProgramming implements Planner {
 		this.maxIterations = maxEvaluationIterations;
 		this.maxPolicyIterations = maxPolicyIterations;
 		
-		this.evaluativePolicy = new GreedyDeterministicQPolicy(this.getCopyOfValueFunction());
+		this.evaluativePolicy = new GreedyQPolicy(this.getCopyOfValueFunction());
 	}
 	
 	
@@ -168,7 +173,7 @@ public class PolicyIteration extends DynamicProgramming implements Planner {
 
 		int iterations = 0;
 		this.initializeOptionsForExpectationComputations();
-		if(this.performReachabilityFrom(initialState)){
+		if(this.performReachabilityFrom(initialState) || !this.hasRunPlanning){
 			
 			double delta;
 			do{
@@ -176,6 +181,8 @@ public class PolicyIteration extends DynamicProgramming implements Planner {
 				iterations++;
 				this.evaluativePolicy = new GreedyQPolicy(this.getCopyOfValueFunction());
 			}while(delta > this.maxPIDelta && iterations < maxPolicyIterations);
+
+			this.hasRunPlanning = true;
 			
 		}
 
@@ -209,7 +216,7 @@ public class PolicyIteration extends DynamicProgramming implements Planner {
 		
 		Set <HashableState> states = mapToStateIndex.keySet();
 		
-		int i = 0;
+		int i;
 		for(i = 0; i < this.maxIterations; i++){
 			
 			double delta = 0.;
@@ -266,7 +273,7 @@ public class PolicyIteration extends DynamicProgramming implements Planner {
 		openedSet.add(sih);
 		
 		
-		while(openList.size() > 0){
+		while(!openList.isEmpty()){
 			HashableState sh = openList.poll();
 			
 			//skip this if it's already been expanded
